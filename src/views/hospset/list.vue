@@ -10,11 +10,19 @@
       </el-form-item>
       <el-button type="primary" icon="el-icon-search" @click="getList()">查询</el-button>
     </el-form>
+    <!-- 批量删除按钮 -->
+    <div>
+      <el-button type="danger" size="medium" @click="removeRows()">批量删除</el-button>
+    </div>
+    <br>
     <!-- 表格数据 -->
     <el-table
+      :row-key="getRowKeys"
       :data="list"
       stripe
-      style="width: 100%">
+      style="width: 100%"
+      @selection-change="handleSelectionChange">
+      <el-table-column :reserve-selection="true" type="selection" width="55"/>
       <el-table-column type="index" width="50" label="序号"/>
       <el-table-column prop="hosname" label="医院名称"/>
       <el-table-column prop="hoscode" label="医院编号"/>
@@ -58,13 +66,17 @@ export default {
       limit: 3, // 每页显示记录数
       searchObj: {}, // 条件封装对象
       list: [], // 每页数据集合
-      total: 0 // 总记录数
+      total: 0, // 总记录数
+      multipleSelection: [] // 批量选择中选择的记录列表
     }
   },
   created() { // 在页面渲染之前执行，一般调用methods中定义的方法，得到数据
     this.getList()
   },
   methods: { // 定义方法，请求调用接口
+    getRowKeys(row) { // 解决element-ui中的table多选时记住上一页勾选数据
+      return row.id
+    },
     getList(page = 1) { // 添加当前页参数
       this.current = page
       hospset.getHospSetList(this.current, this.limit, this.searchObj)
@@ -83,6 +95,36 @@ export default {
         type: 'warning'
       }).then(() => {
         hospset.deleteHospSet(id)
+          .then(response => {
+            // 提示信息
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            // 刷新页面
+            this.getList()
+          })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
+    handleSelectionChange(selection) { // 获取已选复选框的id值
+      this.multipleSelection = selection
+    },
+    removeRows() { // 批量删除
+      this.$confirm('此操作将永久删除医院设置信息, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        var ids = []
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          ids.push(this.multipleSelection[i].id)
+        }
+        hospset.batchDeleteHospSet(ids)
           .then(response => {
             // 提示信息
             this.$message({

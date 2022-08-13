@@ -15,5 +15,13 @@ export default {
       url: `/admin/hosp/hospitalSet/delete/${id}`,
       method: 'delete'
     })
+  },
+  // 批量删除
+  batchDeleteHospSet(idList) {
+    return request({
+      url: `/admin/hosp/hospitalSet/batchRemove`,
+      method: 'delete',
+      data: idList
+    })
   }
 }
