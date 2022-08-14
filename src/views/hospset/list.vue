@@ -40,7 +40,19 @@
             type="danger"
             size="mini"
             icon="el-icon-delete"
-            @click="removeDataById(scope.row.id)"/>
+            @click="removeDataById(scope.row.id)">删除</el-button>
+          <el-button
+            v-if="scope.row.status==1"
+            type="primary"
+            size="mini"
+            icon="el-icon-circle-close"
+            @click="lockHostSet(scope.row.id,0)">锁定</el-button>
+          <el-button
+            v-if="scope.row.status==0"
+            type="danger"
+            size="mini"
+            icon="el-icon-circle-check"
+            @click="lockHostSet(scope.row.id,1)">取消锁定</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -140,6 +152,18 @@ export default {
           message: '已取消删除'
         })
       })
+    },
+    lockHostSet(id, status) {
+      hospset.lockHospSet(id, status)
+        .then(response => {
+          // 提示信息
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          })
+          // 刷新页面
+          this.getList()
+        })
     }
   }
 }
