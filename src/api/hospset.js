@@ -38,5 +38,20 @@ export default {
       method: 'post',
       data: hospitalSet
     })
+  },
+  // 根据id查询医院设置
+  getHospSetById(id) {
+    return request({
+      url: `/admin/hosp/hospitalSet/getHospSet/${id}`,
+      method: 'get'
+    })
+  },
+  // 修改医院设置
+  updateHospSet(hospitalSet) {
+    return request({
+      url: `/admin/hosp/hospitalSet/updateHospitalSet`,
+      method: 'post',
+      data: hospitalSet
+    })
   }
 }
