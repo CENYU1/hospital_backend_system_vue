@@ -1,5 +1,9 @@
 <template>
   <div class="app-container">
+    <el-row>
+      <el-button type="primary" @click="exportData">导出</el-button>
+      <el-button type="primary" @click="importData">导入</el-button>
+    </el-row><br>
     <el-table
       :data="list"
       :load="getChildrens"
@@ -29,6 +33,27 @@
         </template>
       </el-table-column>
     </el-table>
+    <!-- 导入按钮弹窗 -->
+    <el-dialog :visible.sync="dialogImportVisible" title="导入" width="480px">
+      <el-form label-position="right" label-width="170px">
+        <el-form-item label="文件">
+          <el-upload
+            :multiple="false"
+            :on-success="onUploadSuccess"
+            :action="'http://localhost:8202/admin/cmn/dict/importData'"
+            class="upload-demo">
+            <el-button size="small" type="primary">点击上传</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传excel文件，且不超过500kb</div>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogImportVisible = false">
+          取消
+        </el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -37,7 +62,8 @@ import dict from '@/api/dict'
 export default {
   data() {
     return {
-      list: [] // 数据字典列表数组
+      list: [], // 数据字典列表数组
+      dialogImportVisible: false // 设置弹框是否弹出
     }
   },
   created() {
@@ -55,6 +81,19 @@ export default {
       dict.dictList(tree.id).then(response => {
         resolve(response.data)
       })
+    },
+    // 导出数据字典
+    exportData() {
+      window.location.href = 'http://localhost:8202/admin/cmn/dict/exportData'
+    },
+    // 导入数据字典
+    importData() {
+      this.dialogImportVisible = true
+    },
+    // 上传成功调用
+    onUploadSuccess() {
+      this.dialogImportVisible = false
+      this.getDictList(1)
     }
   }
 }
